@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv='content-type' content='text/html; charset=utf-8' />
+
+    <title>Embed Demo</title>
+
+    {{ js_resources|indent(4)|safe }}
+
+    {{ css_resources|indent(4)|safe }}
+
+  </head>
+  <body>
+    <!-- A simple form for changing the graph -->
+    <p> Select your settings: </p>
+    <form name="color_button" method='GET'>
+        Color:
+        <select name="color">
+            <option value="Red">Red</option>
+            <option value="Green">Green</option>
+            <option value="Blue">Blue</option>
+            <option selected="selected" value="Black">Black</option>
+        </select>
+        <br>
+        From:
+        <input type="text" name="_from" value="{{ _from }}">
+        <br>
+        To:
+        <input type="text" name="to" value="{{ to }}">
+        <br>
+        <button type="submit">Submit</button>
+    </form>
+    <div>
+        {{ plot_div|indent(4)|safe }}
+        {{ plot_script|indent(4)|safe }}
+    </div>
+    <p> Demonstrates some very simple embedding into a webpage</p>
+
+    <div>
+        {{ plot_div_2|indent(4)|safe }}
+        {{ plot_script_2|indent(4)|safe }}
+    </div>
+
+    <div>
+        {{ plot_div_3|indent(4)|safe }}
+        {{ plot_script_3|indent(4)|safe }}
+    </div>
+    
+  </body>
+</html>
+
+<!--
+@app.route("/visualize")
+def visualize():
+    """ Very simple embedding of a polynomial chart
+
+    """
+
+    import flask
+    from bokeh.embed import components
+    from bokeh.plotting import figure
+    from bokeh.resources import INLINE
+    from bokeh.util.string import encode_utf8
+
+    import numpy as np
+
+    from bokeh.layouts import gridplot
+    from bokeh.sampledata.stocks import AAPL, GOOG, IBM, MSFT
+
+    colors = {
+        'Black': '#000000',
+        'Red':   '#FF0000',
+        'Green': '#00FF00',
+        'Blue':  '#0000FF',
+    }
+
+    def getitem(obj, item, default):
+        if item not in obj:
+            return default
+        else:
+            return obj[item]
+
+    # Grab the inputs arguments from the URL
+    args = flask.request.args
+
+    # Get all the form arguments in the url with defaults
+    color = colors[getitem(args, 'color', 'Black')]
+    _from = int(getitem(args, '_from', 0))
+    to = int(getitem(args, 'to', 10))
+
+    # Create a polynomial line graph with those arguments
+    x = list(range(_from, to + 1))
+    fig = figure(title="Polynomial")
+    fig.line(x, [i ** 2 for i in x], color=color, line_width=2)
+
+    js_resources = INLINE.render_js()
+    css_resources = INLINE.render_css()
+
+    script, div = components(fig)
+
+    #############################################
+
+    def datetime(x):
+        return np.array(x, dtype=np.datetime64)
+
+    p1 = figure(x_axis_type="datetime", title="Stock Closing Prices")
+    p1.grid.grid_line_alpha=0.3
+    p1.xaxis.axis_label = 'Date'
+    p1.yaxis.axis_label = 'Price'
+
+    p1.line(datetime(AAPL['date']), AAPL['adj_close'], color='#A6CEE3', legend='AAPL')
+    p1.line(datetime(GOOG['date']), GOOG['adj_close'], color='#B2DF8A', legend='GOOG')
+    p1.line(datetime(IBM['date']), IBM['adj_close'], color='#33A02C', legend='IBM')
+    p1.line(datetime(MSFT['date']), MSFT['adj_close'], color='#FB9A99', legend='MSFT')
+    p1.legend.location = "top_left"
+
+    script_2, div_2 = components(p1)
+
+    aapl = np.array(AAPL['adj_close'])
+    aapl_dates = np.array(AAPL['date'], dtype=np.datetime64)
+
+    window_size = 30
+    window = np.ones(window_size)/float(window_size)
+    aapl_avg = np.convolve(aapl, window, 'same')
+
+    p2 = figure(x_axis_type="datetime", title="AAPL One-Month Average")
+    p2.grid.grid_line_alpha = 0
+    p2.xaxis.axis_label = 'Date'
+    p2.yaxis.axis_label = 'Price'
+    p2.ygrid.band_fill_color = "olive"
+    p2.ygrid.band_fill_alpha = 0.1
+
+    p2.circle(aapl_dates, aapl, size=4, legend='close',
+            color='darkgrey', alpha=0.2)
+
+    p2.line(aapl_dates, aapl_avg, legend='avg', color='navy')
+    p2.legend.location = "top_left"
+
+    script_3, div_3 = components(p2)
+
+    #############################################
+
+    html = flask.render_template(
+        'bokeh.html',
+        plot_script=script,
+        plot_div=div,
+        plot_script_2=script_2,
+        plot_div_2=div_2,
+        plot_script_3=script_3,
+        plot_div_3=div_3,
+        js_resources=js_resources,
+        css_resources=css_resources,
+        color=color,
+        _from=_from,
+        to=to
+    )
+    return encode_utf8(html)
+-->

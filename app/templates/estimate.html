@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block body %}
+<div class="container">
+    <div class="page-header">
+    <h1>Estimate Walking Speed</h1>
+    </div>
+    <p class="lead">This page is for estimating walking speed by applying a calibrated model to the provided csv files.</p>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Estimate walking speed</h3>
+        </div>
+
+        <!-- The estimate walking speed form -->
+        <form id="estimate_speed" action="estimate" method="POST" enctype="multipart/form-data">
+            <div class="panel-body">
+                <ol>
+                    <li><p>Upload a csv file via <a href="/upload">Upload</a> page</p></li>
+                    <li>
+                        <p>Select a model:
+                        <br>
+                        <select name="selected_model" class="custom-select custom-select-sm">
+                        {% for m, mm in param_dict.models %}
+                            {% if m == param_dict.selected_model %}
+                                <option value="{{ m }}" selected="selected">{{ m }} - {{ mm }}</option>
+                            {% else %}
+                                <option value="{{ m }}">{{ m }} - {{ mm }}</option>
+                            {%endif %}
+                        {% endfor %}
+                        </select></p>
+                    </li>
+                    <li>
+                        <p>Select a csv file:
+                        <br>
+                        <select name="selected_file" class="custom-select custom-select-sm">
+                        {% for f in param_dict.files %}
+                            {% if f == param_dict.selected_file %}
+                                <option value="{{ f }}" selected="selected">{{ f }}</option>
+                            {% else %}
+                                <option value="{{ f }}">{{ f }}</option>
+                            {%endif %}
+                        {% endfor %}
+                        </select></p>
+                        <p>Note: It MUST have the same characteristics as the ones used for calibrating the model. Specifically, the selected csv file must have the same sampling rate recorded from the device attatched to the same location.</p>
+                    </li>
+                    <li>
+                        <input type="submit" name="submit_btn" class="btn btn-default btn-sm" value="Estimate"> walking speed
+                    </li>
+                </ol>
+            </div>
+        </form>
+    </div>
+
+    {% if param_dict.status == "success" %}
+        <div class="panel panel-success">
+            <div class="panel-heading">
+                <h3 class="panel-title">Finish</h3>
+            </div>
+            <div class="panel-body">
+                {% if param_dict.plot_div %}
+                    <div style="width: 100%">
+                        {{ param_dict.plot_div|indent(4)|safe }}
+                        {{ param_dict.plot_script|indent(4)|safe }}
+                    </div>
+                {% else %}
+                    There is no graphs to plot.
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+
+{% if param_dict.js_resources %}
+    {{ param_dict.js_resources|indent(4)|safe }}
+{% endif %}
+
+{% if param_dict.css_resources %}
+    {{ param_dict.css_resources|indent(4)|safe }}
+{% endif %}
+
+{% endblock %}

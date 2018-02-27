@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Visualize{% endblock %}
+{% block body %}
+<div class="container">
+    <div class="page-header">
+    <h1>Visualize CSV file</h1>
+    </div>
+    <p class="lead">This page is for visualizing the uploaded CSV file.</p>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Select a CSV file to visualize</h3>
+        </div>
+
+        <!-- The estimate walking speed form -->
+        <form id="visualize_csv" action="visualize" method="POST" enctype="multipart/form-data">
+            <div class="panel-body">
+                <ol>
+                    <li><p>
+                        Select a csv file:
+                        <br>
+                        <select name="selected_file" class="custom-select custom-select-sm">
+                        {% for f in param_dict.files %}
+                            {% if f == param_dict.selected_file %}
+                                <option value="{{ f }}" selected="selected">{{ f }}</option>
+                            {% else %}
+                                <option value="{{ f }}">{{ f }}</option>
+                            {%endif %}
+                        {% endfor %}
+                        </select>
+                    </p></li>
+                    <li><p>
+                        <input type="submit" name="submit_btn" class="btn btn-default btn-sm" value="Visualize">
+                    </p></li>
+                </ol>
+                {% if param_dict.plot_div %}
+                    <div style="width: 100%">
+                        {{ param_dict.plot_div|indent(4)|safe }}
+                        {{ param_dict.plot_script|indent(4)|safe }}
+                    </div>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+
+{% if param_dict.js_resources %}
+    {{ param_dict.js_resources|indent(4)|safe }}
+{% endif %}
+
+{% if param_dict.css_resources %}
+    {{ param_dict.css_resources|indent(4)|safe }}
+{% endif %}
+
+{% endblock %}
+

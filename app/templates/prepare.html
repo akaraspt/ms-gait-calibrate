@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block body %}
+<div class="container">
+    <div class="page-header">
+    <h1>Prepare Training Files</h1>
+    </div>
+    <p class="lead">This page is for preparing files to calibrate model.</p>
+
+    <!-- The preparing data form -->
+    <form id="prepare_data" action="prepare" method="POST" enctype="multipart/form-data">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Visualize acceleration data, and walking periods detected by the algorithm</h3>
+            </div>
+            <div class="panel-body">
+                <ol>
+                    <li>
+                        Select a CSV file containing walking data from an accelerometer, in which its corresponding walking speed is known:
+                        <br>
+                        <select name="selected_file" class="custom-select custom-select-sm">
+                        {% for f in param_dict.files %}
+                            {% if f == param_dict.selected_file %}
+                                <option value="{{ f }}" selected="selected">{{ f }}</option>
+                            {% else %}
+                                <option value="{{ f }}">{{ f }}</option>
+                            {%endif %}
+                        {% endfor %}
+                        </select>
+                        <br><br>
+                    </li>
+                    <li>
+                        Specify specification of the accelerometer (all fields are required):
+                        <br>
+                        Sampling rate (in Hz): <input type="text" name="sampling_rate" placeholder="e.g., 100" required value="{{ param_dict.get('sampling_rate') if param_dict.get('sampling_rate') != None }}"><br>
+                        Body location: 
+                        <select name="body_loc">
+                            <option value="lower_back">Lower Back</option>
+                        </select><br>
+                        Position: 
+                        <select name="pos">
+                            <option value="center_right">Center-Right</option>
+                        </select>
+                        <br><br>
+                    </li>
+                    <li>
+                        <input type="submit" name="submit_btn" class="btn btn-default btn-sm" value="Visualize"> detected walking periods
+                        {% if param_dict.get('selected_walk_figpath') != None %}
+                            <br>
+                            <img src="{{ param_dict.get('selected_walk_figpath') + '?' + param_dict.get('timestamp')|string }}" alt="Detected walking periods" width="100%">
+                            <input type="hidden" name="selected_walk_figpath" value="{{ param_dict.get('selected_walk_figpath') }}"/>
+                        {% endif %}
+                    </li>
+                </ol>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Select walking periods using index (shown in the figure above), and specify their corresponding walking speeds (in m/s)</h3>
+            </div>
+            <div class="panel-body">
+                <ol>
+                    <li>
+                        <div id="input_fields_wrap">
+                            <button id="add_field_button" class="btn btn-default btn-sm">Add</button> input field for selecting index (1st column) and specifying speed (2nd column):<br>
+                        </div>
+                        {% if param_dict.get('walk_idx_speed') != None %}
+                            {% for w in param_dict.walk_idx_speed %}
+                                <div><input type="text" name="walkidx[]" maxlength="2" size="8" placeholder="e.g., 1" value="{{ w[0] }}"/> <input type="text" name="walkspeed[]" maxlength="6" size="10" placeholder="e.g., 0.98" value="{{ w[1] }}"/> <a href="#" id="remove_field">Remove</a></div>
+                            {% endfor %}
+                        {% endif %}
+                        <br>
+                    </li>
+                    <li>
+                        <input type="submit" name="submit_btn" class="btn btn-default btn-sm" value="Create"> data for model calibration.
+                        {% if param_dict.get('selected_speed_figpath') != None %}
+                            <br>
+                            The figures below show the selected walking periods with the walking speeds.
+                            <br>
+                            <img src="{{ param_dict.get('selected_speed_figpath') + '?' + param_dict.get('timestamp')|string }}" alt="Walking speeds" width="100%">
+                            <input type="hidden" name="selected_speed_figpath" value="{{ param_dict.get('selected_speed_figpath') }}"/>
+                        {% endif %}
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+/*jslint unparam: true, regexp: true */
+/*global window, $ */
+$(document).ready(function() {
+    var max_fields = 50;                       // Maximum input boxes allowed
+    var wrapper    = $("#input_fields_wrap");  // Fields wrapper
+    var add_button = $("#add_field_button");   // Add button
+    
+    var x = 1; //initlal text box count
+    $(add_button).click(function(e){ //on add input button click
+        e.preventDefault();
+        if(x < max_fields){ //max input box allowed
+            x++; //text box increment
+            $(wrapper).append('<div><input type="text" name="walkidx[]" maxlength="2" size="8" placeholder="e.g., 1"/> <input type="text" name="walkspeed[]" maxlength="6" size="10" placeholder="e.g., 0.98"/> <a href="#" id="remove_field">Remove</a></div>'); //add input box
+        }
+    });
+    
+    $(wrapper).on("click", "#remove_field", function(e){ //user click on remove text
+        e.preventDefault(); $(this).parent('div').remove(); x--;
+    })
+});
+</script>
+{% endblock %}

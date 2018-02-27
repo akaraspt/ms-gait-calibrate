@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block body %}
+<div id="divcontainer" class="container">
+    <div class="page-header">
+    <h1>Gait Calibration</h1>
+    </div>
+    <p class="lead">This page is for calibrating a model from the selected files.</p>
+
+    <!-- Prerequisite -->
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Prerequisite</h3>
+        </div>
+        <div class="panel-body">
+            <ol>
+                <li>Upload a csv file via <a href="/upload">Upload</a> page</li>
+                <li>Create training files in the required format via <a href="/prepare">Prepare</a> page</li>
+                <li>Move all training files that you would like to use for calibration in the <code>calibrate</code> folder</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Select files to calibarte a model -->
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Select files to calibrate a model.</h3>
+        </div>
+        <form id="calibrate_model" action="calibrate" method="POST" enctype="multipart/form-data">
+            <div class="panel-body">
+                {% if not param_dict %}
+                    <input type="submit" name="submit_btn" class="btn btn-default btn-sm" value="Check"> files in the <code>calibrate</code> folder.<br>
+                {% else %}
+                    {% if param_dict.files|length > 0 %}
+                        <p>Below are the list of the files from the <code>calibrate</code> folder.</p>
+                        <p>
+                        {% for f, m in param_dict.files %}
+                            <input type="checkbox" name="selected_files[]" value="{{ f }}" checked> {{ f }} - {{ m }}<br>
+                        {% endfor %}
+                        </p>
+                        <p>Note: The selected files MUST have the same characteristics (i.e., same sampling rate recorded from the device attatched to the same location).</p>
+                        <p>Model name: <input type="text" name="model_name" placeholder="e.g., actms001" required value="{{ param_dict.get('model_name') if param_dict.get('model_name') != None }}"></p>
+                        <p><input id="showprogress" type="submit" name="submit_btn" class="btn btn-default btn-sm" value="Calibrate"></p>
+                    {% else %}
+                        <p>There is no file in the <code>calibrate</code> folder.</p>
+                        <input type="submit" name="submit_btn" class="btn btn-default btn-sm" value="Check"> files in the <code>calibrate</code> folder.<br>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    {% if param_dict %}
+        {% if param_dict.model_name %}
+            <div class="panel panel-success">
+                <div class="panel-body">
+                    <p>Model created: {{ param_dict.model_name }}.pkl</p>
+                    <p>Please go to <a href="/estimate">Estimate</a> page to estimate walking speed.</p>
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$("#showprogress").click(function () {
+  $("#divcontainer").append('<div class="panel panel-warning"><div class="panel-body">Processing</div></div>');
+});
+</script>
+{% endblock %}
