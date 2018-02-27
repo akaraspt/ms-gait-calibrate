@@ -72,3 +72,9 @@ Visualize estimated walking speeds and their corresponding acceleration data of 
 
 ### Reverse data collected from the device attached upside-down ###
     python scripts/reverse_csv_data.py --input_csv_file /path/to/input_csv_file --output_csv_file /path/to/output_csv_file
+
+
+## Licence ##
+- For academic and non-commercial use only
+- For commercial use, please contact akara.spt@gmail.com and p.matthews@imperial.ac.uk
+- Apache License 2.0
